@@ -16,7 +16,7 @@ TagManager:
   - Floor
   - Wall
   - Player
-  - 
+  - Boundary
   - 
   - 
   - 
@@ -41,12 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Boundary
+    uniqueID: 680514049
+    locked: 0
+  - name: Floor
+    uniqueID: 141449123
+    locked: 0
   - name: Wall
     uniqueID: 3617505397
     locked: 0
   - name: Player
     uniqueID: 19143389
-    locked: 0
-  - name: Floor
-    uniqueID: 141449123
     locked: 0

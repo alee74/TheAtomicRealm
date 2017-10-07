@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Camera : MonoBehaviour {
+public class PhotonScript : MonoBehaviour {
 
-    public Transform target;
+    public int speed;
+
+    private int[,] map;
 
 	// Use this for initialization
 	void Start () {
+
+        map = GameObject.Find("LevelManager").GetComponent<LevelGenerator>().map;
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = new Vector3(target.position.x, target.position.y, transform.position.z);
+		
 	}
 }
