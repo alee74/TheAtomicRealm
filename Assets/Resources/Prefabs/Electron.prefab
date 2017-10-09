@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 50853972788590186}
   m_Layer: 10
   m_Name: Electron
-  m_TagString: Untagged
+  m_TagString: Electron
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -91,6 +91,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 7
   scale: 0.075
+  radius: 0
+  alive: 0
 --- !u!212 &212797390284036914
 SpriteRenderer:
   m_ObjectHideFlags: 1

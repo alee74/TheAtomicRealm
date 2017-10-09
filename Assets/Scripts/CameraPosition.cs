@@ -14,7 +14,7 @@ public class CameraPosition : MonoBehaviour {
 	void Start () {
 
         // distance (game units) from center to each edge (map is square)
-        offset = GameObject.Find("LevelManager").GetComponent<LevelGenerator>().lvlSize / 2f;
+        offset = GameObject.Find("LevelManager").GetComponent<LevelManagement>().lvlSize / 2f;
         // Vertical distance from center to edge of camera
         hOff = Camera.main.orthographicSize;
         // Horizontal distance from center to edge of camera

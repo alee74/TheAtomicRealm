@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Wall
+  - Photon
+  - Electron
+  - Atom
+  - Floor
+  - Edge
   layers:
   - Default
   - TransparentFX
@@ -47,9 +53,9 @@ TagManager:
   - name: Floor
     uniqueID: 141449123
     locked: 0
-  - name: Wall
-    uniqueID: 3617505397
-    locked: 0
   - name: Player
     uniqueID: 19143389
+    locked: 0
+  - name: Wall
+    uniqueID: 3617505397
     locked: 0

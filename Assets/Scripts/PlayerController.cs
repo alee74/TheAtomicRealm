@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerScript : MonoBehaviour {
+public class PlayerController : MonoBehaviour {
 
-    public float atomScale = 0.3f;
-    public float electronScale = 0.075f;
+    // TODO : add atomic number
+    // TODO : take damage from photons
+    // TODO : change sprite when hit
+
     public float speed = 5f;
-    public float eSpeed = 10f;
+    public float scale = 0.3f;
+    public float radius;
     public int shootDelay = 5;
-    //public float eOffset = 1f;
 
-    //private float electronScale;
-    private float atomRadius;
-    private float electronRadius;
-    private float eOffset;
     private int shootCount = 0;
     private bool canShoot = true;
+    private float eSpeed;
+    private float eRadius;
+    private float eOffset;
 
     private Rigidbody2D electron;
     private Rigidbody2D atom;
@@ -27,12 +28,12 @@ public class PlayerScript : MonoBehaviour {
         atom = GetComponent<Rigidbody2D>();
         electron = Resources.Load<Rigidbody2D>("Prefabs/Electron");
 
-        atom.transform.localScale = new Vector3(atomScale, atomScale, 1);
+        atom.transform.localScale = new Vector3(scale, scale, 1);
+        eSpeed = electron.GetComponent<ElectronController>().speed;
 
-        //electronScale = GameObject.Find("Electron").GetComponent<ElectronScript>().scale;
-        atomRadius = atom.GetComponent<CircleCollider2D>().radius * atomScale;
-        electronRadius = electron.GetComponent<CircleCollider2D>().radius * electronScale;
-        eOffset = atomRadius + electronRadius;
+        radius = atom.GetComponent<CircleCollider2D>().radius * scale;
+        eRadius = electron.GetComponent<ElectronController>().radius;
+        eOffset = radius + eRadius;
 		
 	}
 
@@ -75,7 +76,9 @@ public class PlayerScript : MonoBehaviour {
         // Instantiate projectile, iff actually shot (ePosition remains zero if not)
         if (ePosition != Vector2.zero && canShoot) {
 
-            Rigidbody2D elect = Instantiate(electron, ePosition, Quaternion.identity);
+            Rigidbody2D elect = ObjectPool.SharedInstance.GetPooledParticle("Electron").GetComponent<Rigidbody2D>();
+            elect.gameObject.SetActive(true);
+            elect.transform.position = ePosition;
             elect.velocity = eVelocity;
 
             canShoot = false;

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1a4a190c9ad849947860885c71ed5680
+timeCreated: 1507545859
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - floorObj: {fileID: 1162065210019294, guid: f14b2c028d18c004296254eb0f04f2c8, type: 2}
+  - wallObj: {fileID: 1434387207872836, guid: da4d220cdf2dccf4a8090fd2e10182a7, type: 2}
+  - edge: {fileID: 1154457955095016, guid: 7c10a0c7a48d9c24aa28ad98a5eca496, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
