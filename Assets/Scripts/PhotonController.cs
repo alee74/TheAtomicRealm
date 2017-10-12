@@ -12,30 +12,24 @@ public class PhotonController : MonoBehaviour {
 
     public float speed = 15f;
     public float scale = 0.015f;
-    public float radius;
+    public static float radius;
+    // Offsets used in calculating shortest path and setting Photon velocity
+    public static Pair[] offsets = { new Pair(0, 1), new Pair(1, 0),    // Photons only utilize first 4 pairs
+                                     new Pair(0, -1), new Pair(-1, 0) };   
 
     // Descriptive Constants
-    private const int endAtX = 0;
-    private const int endAtY = 1;
-    private const int FLOOR = 0;
+    private const int END_X = 0;
+    private const int END_Y = 1;
     private const int NORTH = 0;
     private const int EAST = 1;
     private const int SOUTH = 2;
     private const int WEST = 3;
 
-    // Values from LevelGenerator script
-    private int numMapElems;    // Number of Wall/Floor spaces per row/column (height/width of map in map elements)
-    private int mapElemSize;    // height/width of Wall/Floor in game units
-    private int lvlOffset;      // Half of height/width of map in game units
-    System.Random rng;          // Random Number Generator
-
     private Pair dir;
     private Pair nextPoint;
     private Pair currentPoint;
     private List<Pair> path;
-    // Offsets used in calculating shortest path and setting Photon velocity
-    private Pair[] offsets = { new Pair(0, 1), new Pair(1, 0),
-                                   new Pair(0, -1), new Pair(-1, 0) };
+
     #endregion
 
     // Use this for initialization
@@ -44,12 +38,6 @@ public class PhotonController : MonoBehaviour {
         photon = GetComponent<Rigidbody2D>();                               // Grab Photon's Rigidbody
         photon.transform.localScale = new Vector3(scale, scale, 1);         // Set render scale of Photon
         radius = photon.GetComponent<CircleCollider2D>().radius * scale;    // Calculate actual radius of rendered Photon
-
-        // Grab values from LevelGenerator script
-        numMapElems = LevelManagement.SharedInstance.numElems;
-        mapElemSize = LevelManagement.SharedInstance.elemSize;
-        lvlOffset = LevelManagement.SharedInstance.lvlSize / 2;
-        rng = LevelManagement.SharedInstance.RNG;
 
     }
 
@@ -60,9 +48,9 @@ public class PhotonController : MonoBehaviour {
         if (photon.gameObject.activeInHierarchy) {
 
             // Check if need to update location and travel direction
-            if ((dir == offsets[EAST] && transform.position.x >= xTransform(nextPoint.x)) || 
+            if ((dir == offsets[EAST] && transform.position.x >= xTransform(nextPoint.x)) ||
                 (dir == offsets[WEST] && transform.position.x <= xTransform(nextPoint.x)) ||
-                (dir == offsets[NORTH] && transform.position.y >= yTransform(nextPoint.y)) || 
+                (dir == offsets[NORTH] && transform.position.y >= yTransform(nextPoint.y)) ||
                 (dir == offsets[SOUTH] && transform.position.y <= yTransform(nextPoint.y)))
             {
 
@@ -80,10 +68,10 @@ public class PhotonController : MonoBehaviour {
 
     }
 
-    void OnCollisionEnter2D(Collision2D other) {
+    void OnTriggerEnter2D(Collider2D other) {
 
-        Debug.Log("Photon death due to collision with " + other.gameObject.tag);
-        photon.gameObject.SetActive(false);
+        if (other.gameObject.tag != "Player")
+            photon.gameObject.SetActive(false);
 
     }
 
@@ -97,25 +85,27 @@ public class PhotonController : MonoBehaviour {
 
         #region Generate random starting location and path for Photon to follow
 
-        if (rng.Next() % 2 == 0) {  // Spawn on left/right edge (traverse x)
+        int numMapElems = LevelManagement.LvlObj.GetNumElems();
 
-            if (rng.Next() % 2 == 0)    // Spawn on left edge
-                path = shortestPath(new Pair(0, rng.Next(numMapElems)), numMapElems - 1, endAtX);
+        if (LevelManagement.RNG.Next() % 2 == 0) {  // Spawn on left/right edge (traverse x)
+
+            if (LevelManagement.RNG.Next() % 2 == 0)    // Spawn on left edge
+                path = shortestPath(new Pair(0, LevelManagement.RNG.Next(numMapElems)), numMapElems - 1, END_X);
             else                        // Spawn on right edge
-                path = shortestPath(new Pair(numMapElems - 1, rng.Next(numMapElems)), 0, endAtX);
+                path = shortestPath(new Pair(numMapElems - 1, LevelManagement.RNG.Next(numMapElems)), 0, END_X);
 
         } else {    // Spawn on top/bottom edge (traverse y)
 
-            if (rng.Next() % 2 == 0)    // Spawn on top edge
-                path = shortestPath(new Pair(rng.Next(numMapElems), 0), numMapElems - 1, endAtY);
+            if (LevelManagement.RNG.Next() % 2 == 0)    // Spawn on top edge
+                path = shortestPath(new Pair(LevelManagement.RNG.Next(numMapElems), 0), numMapElems - 1, END_Y);
             else                        // Spawn on bottom edge
-                path = shortestPath(new Pair(rng.Next(numMapElems), numMapElems - 1), 0, endAtY);
+                path = shortestPath(new Pair(LevelManagement.RNG.Next(numMapElems), numMapElems - 1), 0, END_Y);
         }
         #endregion
 
         if (path == null) {     // Photon is trapped
 
-            // Set inactive to be reused
+            // Set Photon inactive, to be reused from pool
             photon.gameObject.SetActive(false);
 
         } else {    // path exists
@@ -156,7 +146,8 @@ public class PhotonController : MonoBehaviour {
     /// <returns> list of Pairs (xy-coordinates) that form a path from one edge to the opposite edge </returns>
     List<Pair> shortestPath(Pair start, int end, int endType) {
 
-        int[,] map = LevelManagement.SharedInstance.map;         // 2D array of 0s and 1s representing Wall and Floor elements
+        int numMapElems = LevelManagement.LvlObj.GetNumElems();
+        int[,] map = LevelManagement.LvlObj.GetLevelMap();         // 2D array of 0s and 1s representing Wall and Floor elements
         Queue<QueueType> queue = new Queue<QueueType>();
         HashSet<Pair> visited = new HashSet<Pair>();            // Track points already visited by algorithm
         queue.Enqueue(new QueueType(start, new List<Pair>()));  // Enqueue starting location, empty list, and empty set
@@ -170,7 +161,8 @@ public class PhotonController : MonoBehaviour {
 
                 Pair newPoint = new Pair(current.point.x + offset.x, current.point.y + offset.y);
                 // If current location is not a wall and is the desired ending location, add points to path and return it
-                if (((endType == endAtX && newPoint.x == end) || (endType == endAtY && newPoint.y == end)) && map[newPoint.y, newPoint.x] == FLOOR) {
+                if (((endType == END_X && newPoint.x == end) || (endType == END_Y && newPoint.y == end)) &&
+                                                        map[newPoint.y, newPoint.x] == LevelManagement.FLOOR) {
 
                     current.path.Add(current.point);
                     current.path.Add(newPoint);
@@ -178,7 +170,8 @@ public class PhotonController : MonoBehaviour {
 
                 }
                 // Otherwise, check that next location is within map bounds, is not a wall, and has not already been visited
-                if (newPoint.x >= 0 && newPoint.x < numMapElems && newPoint.y >= 0 && newPoint.y < numMapElems && map[newPoint.y, newPoint.x] == FLOOR && !visited.Contains(newPoint)) {
+                if (newPoint.x >= 0 && newPoint.x < numMapElems && newPoint.y >= 0 && newPoint.y < numMapElems &&
+                             map[newPoint.y, newPoint.x] == LevelManagement.FLOOR && !visited.Contains(newPoint)) {
 
                     List<Pair> newPath = new List<Pair>(current.path);
                     newPath.Add(current.point);
@@ -232,12 +225,16 @@ public class PhotonController : MonoBehaviour {
     /// </summary>
     /// <param name="inX"> 2D array x-coordinate, corresponds to column of map used for photon's path </param>
     /// <returns> x-coordinate corresponding to center of floor/wall tile in game </returns>
-    float xTransform(int inX) {
+    public static float xTransform(int inX) {
+
+        int lvlOffset = LevelManagement.LvlObj.GetLevelSize() / 2;
+        int numMapElems = LevelManagement.LvlObj.GetNumElems();
 
         if (inX < numMapElems / 2) // column is left of origin, value should be negative
-            return -(lvlOffset - (inX * mapElemSize)) + (mapElemSize / 2f);
+            return -(lvlOffset - (inX * LevelManagement.elemSize)) + (LevelManagement.elemSize / 2f);
         else // column is right of origin, value should be positive
-            return ((inX - (numMapElems / 2)) * mapElemSize) + (mapElemSize / 2f);
+            return ((inX - (numMapElems / 2)) * LevelManagement.elemSize) + (LevelManagement.elemSize / 2f);
+
     }
 
 
@@ -246,51 +243,56 @@ public class PhotonController : MonoBehaviour {
     /// </summary>
     /// <param name="inY"> 2D array y-coordinate, corresponds to row of map used for photon's path </param>
     /// <returns> y-coordinate corresponding to center of floor/wall tile in game </returns>
-    float yTransform(int inY) {
+    public static float yTransform(int inY) {
+
+        int lvlOffset = LevelManagement.LvlObj.GetLevelSize() / 2;
+        int numMapElems = LevelManagement.LvlObj.GetNumElems();
+
 
         if (inY < numMapElems / 2) // row is above origin, value should be positive
-            return lvlOffset - (inY * mapElemSize) - (mapElemSize / 2f);
+            return lvlOffset - (inY * LevelManagement.elemSize) - (LevelManagement.elemSize / 2f);
         else // row is below origin, value should be negative
-            return -((inY - (numMapElems / 2)) * mapElemSize) - (mapElemSize / 2f);
+            return -((inY - (numMapElems / 2)) * LevelManagement.elemSize) - (LevelManagement.elemSize / 2f);
+
     }
     #endregion
 
-    #region Structs
-
-    /// <summary>
-    /// Defines a tuple (x, y) analogous to an xy coordinate
-    /// </summary>
-    private struct Pair {
-
-        public int x;
-        public int y;
-
-        public Pair(int xx, int yy) {
-            x = xx;
-            y = yy;
-        }
-
-        public static bool operator==(Pair that, Pair other) { return other.x == that.x && other.y == that.y; }
-        public static bool operator!=(Pair that, Pair other) { return !(that == other); }
-
-    };
-
-    /// <summary>
-    /// Defines a 3-tuple type (Pair, List<Pair>, HashSet<Pair>) for use within queue in shortestPath algorithm
-    /// </summary>
-    private struct QueueType {
-
-        public Pair point;              // Current point
-        public List<Pair> path;         // Accumulated path
-
-        public QueueType(Pair poi, List<Pair> pat) {
-            point = poi;
-            path = pat;
-        }
-    };
-    #endregion
-
 }
+
+#region Structs
+
+/// <summary>
+/// Defines a tuple (x, y) analogous to an xy coordinate
+/// </summary>
+public struct Pair {
+
+    public int x;
+    public int y;
+
+    public Pair(int xx, int yy) {
+        x = xx;
+        y = yy;
+    }
+
+    public static bool operator==(Pair that, Pair other) { return other.x == that.x && other.y == that.y; }
+    public static bool operator!=(Pair that, Pair other) { return !(that == other); }
+
+};
+
+/// <summary>
+/// Defines a 3-tuple type (Pair, List<Pair>, HashSet<Pair>) for use within queue in shortestPath algorithm
+/// </summary>
+public struct QueueType {
+
+    public Pair point;              // Current point
+    public List<Pair> path;         // Accumulated path
+
+    public QueueType(Pair poi, List<Pair> pat) {
+        point = poi;
+        path = pat;
+    }
+};
+#endregion
 
 
 //Debug.Log("Photon instantiated at map (" + currentPoint.x + ", " + currentPoint.y + "), game (" + xTransform(currentPoint.x) + ", " + yTransform(currentPoint.y) + ")");

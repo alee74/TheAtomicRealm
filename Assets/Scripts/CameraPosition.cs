@@ -6,21 +6,22 @@ public class CameraPosition : MonoBehaviour {
 
     public Transform target;
 
-    private float offset;
-    private float hOff;
-    private float wOff;
+    private static float offset;
+    private static float hOff;
+    private static float wOff;
+
 
 	// Use this for initialization
 	void Start () {
 
         // distance (game units) from center to each edge (map is square)
-        offset = GameObject.Find("LevelManager").GetComponent<LevelManagement>().lvlSize / 2f;
+        offset = LevelManagement.LvlObj.GetLevelSize() / 2f;
         // Vertical distance from center to edge of camera
         hOff = Camera.main.orthographicSize;
         // Horizontal distance from center to edge of camera
         wOff = hOff * Camera.main.aspect;
 
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -49,4 +50,8 @@ public class CameraPosition : MonoBehaviour {
             transform.position = new Vector3(transform.position.x, hOff - offset, transform.position.z);
 
 	}
+
 }
+
+// offset = GameObject.Find("LevelManager").GetComponent<LevelManagement>().lvlSize / 2f;
+

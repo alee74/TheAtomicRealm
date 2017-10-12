@@ -10,7 +10,7 @@ public class ElectronController : MonoBehaviour {
 
     public float speed = 10f;
     public float scale = 0.075f;
-    public float radius;
+    public static float radius;
 
     private float xVelocity;
     private float yVelocity;
@@ -32,7 +32,7 @@ public class ElectronController : MonoBehaviour {
 
         
         if (electron.velocity == Vector2.zero) {
-            Debug.Log("Electron death due to zero veloctiy");
+            //Debug.Log("Electron death due to zero veloctiy");
             electron.gameObject.SetActive(false);
         }
         
@@ -43,8 +43,15 @@ public class ElectronController : MonoBehaviour {
 
         if (other.gameObject.tag != "Player" && other.gameObject.tag != "Electron") {
             electron.gameObject.SetActive(false);
-            Debug.Log("Killing Electron from Collision");
+            //Debug.Log("Killing Electron from Collision");
         }
+
+    }
+
+    void OnTriggerEnter2D(Collider2D other) {
+
+        if (other.gameObject.tag == "Photon")
+            electron.gameObject.SetActive(false);
 
     }
 

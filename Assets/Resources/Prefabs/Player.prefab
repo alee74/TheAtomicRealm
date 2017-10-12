@@ -88,7 +88,7 @@ Animator:
   m_GameObject: {fileID: 1416456488960970}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 50ab4fa08a7c0a94dbe111af05ad875d, type: 2}
+  m_Controller: {fileID: 9100000, guid: 461d624822ea7314c8da03903f0a4a62, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -107,10 +107,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d2ea4a25cd8f004cbd44499d18da689, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootDelay: 10
-  scale: 0.3
   speed: 5
-  radius: 0
+  scale: 0.3
+  shootDelay: 5
+  thisAtom: {fileID: 1470935403939068, guid: b307a21921b9986479d5f195602d1ee5, type: 2}
+  electron: {fileID: 50853972788590186, guid: bb33df8287d3c974c8ae25689b5fb2e9, type: 2}
 --- !u!212 &212705176137292748
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -141,7 +142,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 19143389
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2f5a390724bb20f47b2cb9daf1bb776c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

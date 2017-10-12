@@ -26,7 +26,7 @@ GameObject:
   - component: {fileID: 114940230640303882}
   m_Layer: 10
   m_Name: Atom
-  m_TagString: Player
+  m_TagString: Atom
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -107,6 +107,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a68170949b133b14da2cab7ec22317a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveTimer: 5
+  ejectForFrames: 3
+  speed: 5
+  scale: 0.3
+  radius: 0
+  ejectSpeedMultiplier: 1.5
+  justEjected: 0
 --- !u!212 &212523643286974330
 SpriteRenderer:
   m_ObjectHideFlags: 1
